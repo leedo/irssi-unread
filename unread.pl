@@ -3,9 +3,8 @@ use Irssi;
 use List::Util qw(max);
 use List::MoreUtils qw(any);
 
-my $VERSION = "0.1";
-
-my %IRSSI = (
+our $VERSION = "0.1";
+our %IRSSI = (
     authors     => "Lee Aylward",
     contact     => "lee\@arstechnica.com",
     name        => "unread",
@@ -18,9 +17,9 @@ my %IRSSI = (
 Irssi::command_bind('unread', 'cmd_unread');
 
 sub cmd_unread {
-  my $win = Irssi::active_win()->{refnum};
+  my $win  = Irssi::active_win()->{refnum};
   my @wins = grep {any {$_->{data_level} > 1} $_->items} Irssi::windows;
-  my $max = max map {$_->{refnum}} @wins;
+  my $max  = max map {$_->{refnum}} @wins;
 
   my @sorted = map {$_->[0]}
               sort {$_->[1] <=> $_->[1]}
