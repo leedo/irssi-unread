@@ -22,7 +22,7 @@ sub cmd_unread {
   my $max  = max map {$_->{refnum}} @wins;
 
   my @sorted = map {$_->[0]}
-              sort {$_->[1] <=> $_->[1]}
+              sort {$a->[1] <=> $b->[1]}
                map {[$_, $_->{refnum} <= $win ? $_->{refnum} + $max : $_->{refnum}]}
                    @wins;
 
