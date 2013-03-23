@@ -1,7 +1,6 @@
 use strict;
 use Irssi;
-use List::Util qw(max);
-use List::MoreUtils qw(any);
+use List::Util qw(max first);
 
 our $VERSION = "0.1";
 our %IRSSI = (
@@ -18,7 +17,9 @@ Irssi::command_bind('unread', 'cmd_unread');
 
 sub cmd_unread {
   my $win  = Irssi::active_win()->{refnum};
-  my @wins = grep {any {$_->{data_level} > 1} $_->items} Irssi::windows;
+  my @wins = grep {first {$_->{data_level} > 1} $_->items} Irssi::windows;
+  return unless @wins;
+
   my $max  = max map {$_->{refnum}} @wins;
 
   my @sorted = map {$_->[0]}
@@ -26,5 +27,8 @@ sub cmd_unread {
                map {[$_, $_->{refnum} <= $win ? $_->{refnum} + $max : $_->{refnum}]}
                    @wins;
 
-  $sorted[0]->set_active if @sorted;
+  if (@sorted) {
+    my $query = grep {first {$_->{type} eq "QUERY"} $_->items} @sorted;
+    $query ? $query->set_active : $sorted[0]->set_active;
+  }
 }
