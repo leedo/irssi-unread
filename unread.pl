@@ -28,7 +28,7 @@ sub cmd_unread {
                    @wins;
 
   if (@sorted) {
-    my $query = grep {first {$_->{type} eq "QUERY"} $_->items} @sorted;
+    my ($query) = grep {first {$_->{type} eq "QUERY"} $_->items} @sorted;
     $query ? $query->set_active : $sorted[0]->set_active;
   }
 }
