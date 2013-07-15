@@ -1,6 +1,6 @@
 use strict;
 use Irssi;
-use List::Util qw(max first sum);
+use List::Util qw(max sum);
 
 our $VERSION = "0.1";
 our %IRSSI = (
@@ -18,7 +18,7 @@ Irssi::command_bind('unread', 'cmd_unread');
 my @tests = (
   # has highlight
   sub {
-    my $win = shift;
+    my ($win, $level) = @_;
     if ($win->{data_level} > 2) {
       return 3;
     }
@@ -27,7 +27,7 @@ my @tests = (
 
   # query window
   sub {
-    my $win = shift;
+    my ($win, $level) = @_;
     if ($win->{type} eq "QUERY") {
       return 2;
     }
@@ -36,8 +36,9 @@ my @tests = (
 
   # is after the current window
   sub {
-    my ($win, $cur) = @_;
-    if ($win->{refnum} <= $cur) {
+    my ($win, $level) = @_;
+    my $cur  = Irssi::active_win();
+    if ($win->{refnum} <= $cur->{refnum}) {
       return 1;
     }
     return 0;
@@ -48,14 +49,15 @@ my @tests = (
 sub win_score { sum map { $_->(@_) } @tests }
 
 sub cmd_unread {
-  my @wins = grep {first {$_->{data_level} > 1} $_->items} Irssi::windows;
-  return unless @wins;
+  my @wins = grep { $_->[1] > 1 }
+              map { [$_, max map {$_->{data_level}} $_->items] }
+              Irssi::windows;
 
-  my $win  = Irssi::active_win()->{refnum};
+  return unless @wins;
 
   my @sorted = map { $_->[0] }
               sort { $b->[1] <=> $a->[1] }
-               map { [$_, win_score($_, $win)] } @wins;
+               map { [$_, win_score @$_] } @wins;
 
   $sorted[0]->set_active;
 }
