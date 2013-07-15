@@ -38,7 +38,7 @@ my @tests = (
   sub {
     my ($win, $level) = @_;
     my $cur  = Irssi::active_win();
-    if ($win->{refnum} <= $cur->{refnum}) {
+    if ($win->{refnum} >= $cur->{refnum}) {
       return 1;
     }
     return 0;
