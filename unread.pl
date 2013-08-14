@@ -51,13 +51,14 @@ sub win_score { sum map { $_->(@_) } @tests }
 sub cmd_unread {
   my @wins = grep { $_->[1] > 1 }
               map { [$_, max map {$_->{data_level}} $_->items] }
+             sort { $a->{refnum} - $b->{refnum} }
               Irssi::windows;
 
   return unless @wins;
 
   my @sorted = map { $_->[0] }
               sort { $b->[1] <=> $a->[1] }
-               map { [$_, win_score @$_] } @wins;
+               map { [$_->[0], win_score @$_] } @wins;
 
   $sorted[0]->set_active;
 }
